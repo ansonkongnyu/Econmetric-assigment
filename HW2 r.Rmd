@@ -1,0 +1,81 @@
+---
+title: "HW2 R"
+author: "Yui Kan Kong"
+date: "2022-10-08"
+output:
+  pdf_document: default
+  html_document: default
+---
+
+```{r setup, include=FALSE}
+X <- matrix(c(1,6,
+              1,10,
+              1,2,
+              1,4,
+              1,6,
+              1,7,
+              1,0,
+              1,1,
+              1,8,
+              1,5,
+              1,3), byrow = TRUE, 11)
+Y <- matrix(c(82,88,56,64,77,92,23,41,80,59,47),11,1)
+'P the projection matrix'
+P <- X %*% solve(t(X) %*% X) %*% t(X)
+P
+Y.hat <- P %*% Y
+Y.hat
+#'Beta_hat i.e. coefficients that solve X * b = Y_hat'
+
+#install.packages("matlib")
+Sys.setenv(RGL_USE_NULL=TRUE)
+library(matlib)
+b <- Solve(X,Y.hat)
+
+'Least squares coefficients vector'
+beta.hat <- solve(t(X) %*% X) %*% t(X) %*% Y
+beta.hat
+
+'u.hat - residuals using Y and Y_hat'
+u.hat <- Y - Y.hat
+u.hat
+
+'Orthogonal check of projection matrix vs residuals'
+Orthogonal_Check <- P %*% u.hat
+round(Orthogonal_Check,3)
+solve(t(X) %*% X)
+t(X) %*% Y
+```
+```{r}
+my.lm <- lm(Y ~ X[,2])
+my.lm
+```
+```{r}
+my.lm2 <- lm(X[,2] ~ Y)
+my.lm2
+```
+```{r}
+plot(X[,2], Y, pch = 16, cex = 1.3, col = "blue", main = "GPA", xlab = "GPA", ylab = "Income")
+abline(lm(Y ~X[,2]),col="blue")
+abline(6/6.5, 1/6.5, col = "red")
+
+legend("topleft", legend = c("Income as dependent variable","GPA as dependent variable"), pch = c("|","|"), col = c("blue","red"))
+
+
+```
+
+
+```{r}
+X <- matrix(c(1,4,
+              1,3,
+              1,3.5,
+              1,2,
+              1,3,
+              1,3.5,
+              1,2.5,
+              1,2.5), byrow = TRUE, 8)
+Y <- matrix(c(21,15,15,9,12,18,6,12),8,1)
+solve(t(X) %*%X)%*%(t(X) %*% Y)
+
+```
+

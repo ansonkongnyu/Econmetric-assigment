@@ -1,0 +1,126 @@
+---
+title: "HW3 metric"
+author: "Yui Kan Kong"
+date: "2022-11-14"
+output:
+  pdf_document: default
+  html_document:
+    df_print: paged
+---
+#input data
+```{r setup}
+df2<-read.csv("/Users/ansonkong/Downloads/problem_2_data.csv")
+df3<-read.csv("/Users/ansonkong/Downloads/problem_3_data.csv")
+```
+
+## Q2
+
+
+```{r}
+fitq2 <- lm(U ~ V + D + DV, data=df2)
+summary(fitq2) # show results
+```
+b)
+Let hold vacancy rate is constant, to ease on notation, call it a constant V. Then before Q4 we have the equation Q=0, and hence $Unemployment = 2.7331-1.5126*V+1.1667*0+-0.8679*V*0$ become $Unemployment = 2.7331-1.5126*V$ 
+and for after ,we have $Unemployment = 2.7331-1.5126*V+1.1667*1+-0.8679*V*1$ become $Unemployment = 3.8998-2.3805*V$
+Both result intercept dummy D and slope DV are statistically significant with a P value pelow 0.001 which is way below our usually alpha 0.05 ,which suggest statistically different before and after
+
+c)
+slope DV are statistically significant with a P value below 0.001 which is way below our usually alpha 0.05 ,so statistically significant at a 95% confidence level,which suggest statistically different before and after
+d) It would make sense that unemployment rate to increase as the opportunity cost of employment increase, but it is not safe to conclude in our case in here,if V is zero, we can conclude that, but if V is large, note that the policy also let Vacancy rate have a even larger impact on employment rate, so if vacancy rate is high, the unemployment rate may even drop after the policy
+## Q3
+
+#a)
+```{r}
+fitq3a <- lm(Y ~ X1 + X2 + X3+X4, data=df3)
+summary(fitq3a) # show results
+```
+For interpretation, first we ignore significant issue, so Intercept indicate , if all else zero, the quantity of donuts sold is 10816.043 dozen in period 0
+For X1, which indicate all else equal(ceteris paribus), the quantity of donuts sold will go down by 197.400 dozen every period. (10% significant, but we set 5% so in signifcant)
+For X2, which indicate all else equal ,the quantity of donuts sold will go down by 2227.704 dozen as average price of donuts, dozen goes up by one unit(statistaclly signifcant)  ($)
+For X3, which indicate all else equal ,the quantity of donuts sold will go up by 1251.141 dozen as average price of cupcakes, dozen goes up by one unit  ($)
+For X4, indicate all else equal,the quantity of donuts sold will go up by 6.283 dozen as average weekly family disposable income, week go up by one unit ($)
+
+#b)
+```{r}
+fitq3b <- lm(log(Y) ~ X1 + X2 + X3+X4, data=df3)
+summary(fitq3b) # show results
+```
+
+#c)
+```{r cars}
+fitq3c <- lm(log(Y) ~ log(X1) + log(X2) + log(X3) + log(X4), data=df3)
+summary(fitq3c) # show results
+```
+For interpenetration the result will be similar to part a), just everything in approximately %.
+
+For $\beta_1$, which indicate all else equal, the quantity of donuts sold will drop by 0.18165% as time go up by 1%, which is decreasing as time goes
+For $\beta_2$, which indicate all else equal ,the quantity of donuts sold will go down by 1.2736% as average price of donuts, dozen goes up by one percent 
+For $\beta_3$, which indicate all else equal ,the quantity of donuts sold will go up by 0.9373%  as average price of cupcakes, dozen goes up by one percent 
+For $\beta_4$, indicate all else equal,the quantity of donuts sold will go up by 1.7130 % as average weekly family disposable income, week go up by one percent 
+
+#d)
+If betas are given as above, they are pretty close to expectation as normal good, in normal good, own-price elasticity of demand will be negative as demand curve is down ward sloping, cross-price will be positive (substitution effect), and income elasticity of demand is positive as income effect on normal good and $\beta_2$ represent own price elasticity , $\beta_3$ as cross price and $\beta_4$ as income elasticity
+#e)
+Please refer to hand written calculation part
+#f)
+In short,The linear model has higher R-squared and adjusted R-squared values as well as more coefficients with p-values less than 0.1. Given these facts, and that we can calculate the elasticates from the linear model anyway, if I were choosing between the two, I would pick the model in part (a).
+in long, This question depends on the research question, model in c is great if the assumption hold and the researcher question is about elastics. The problem was, if the research question is about elasticity of demand or supply, with demand and supply equation, this is a classic Simultaneous equations bias problem which all 3 result can be bias in which case non of them will be useful.
+
+
+```{r}
+library(magrittr) # needs to be run every time you start R and want to use %>%
+library(dplyr)    # alternatively, this also loads %>%
+library(ggplot2)
+library(reshape2)
+fitq3a <- lm(Y ~ X1 + X2 + X3+X4, data=df3)
+df3$fit.r <- fitq3a$residuals
+df3$fit.p <- fitq3a$fitted.values
+
+df3 %>%
+  melt(measure.vars = c("X1", "X2", "X3", "X4", "fit.p")) %>%
+  ggplot(aes(value, fit.r, group = variable)) +
+  geom_point(shape = 1) +
+  geom_smooth(method = loess) +
+  geom_hline(yintercept = 0) +
+  facet_wrap(~ variable, scales = "free")
+```
+```{r}
+
+library(magrittr) # needs to be run every time you start R and want to use %>%
+library(dplyr)    # alternatively, this also loads %>%
+library(ggplot2)
+library(reshape2)
+fitq3b <- lm(log(Y) ~ X1 + X2 + X3+X4, data=df3)
+
+df3$fit.r <- fitq3b$residuals
+df3$fit.p <- fitq3b$fitted.values
+df3 %>%
+  melt(measure.vars = c("X1", "X2", "X3", "X4", "fit.p")) %>%
+  ggplot(aes(value, fit.r, group = variable)) +
+  geom_point(shape = 1) +
+  geom_smooth(method = loess) +
+  geom_hline(yintercept = 0) +
+  facet_wrap(~ variable, scales = "free")
+```
+```{r}
+
+library(magrittr) # needs to be run every time you start R and want to use %>%
+library(dplyr)    # alternatively, this also loads %>%
+library(ggplot2)
+library(reshape2)
+fitq3c <- lm(log(Y) ~ log(X1) + log(X2) + log(X3) + log(X4), data=df3)
+summary(fitq3c) # show results
+df3$fit.r <- fitq3c$residuals
+df3$fit.p <- fitq3c$fitted.values
+
+df3 %>%
+  melt(measure.vars = c("X1", "X2", "X3", "X4", "fit.p")) %>%
+  ggplot(aes(value, fit.r, group = variable)) +
+  geom_point(shape = 1) +
+  geom_smooth(method = loess) +
+  geom_hline(yintercept = 0) +
+  facet_wrap(~ variable, scales = "free")
+```
+
+For linearity, non of them really fit the linearity assumption from the graph. All of the graph above plot out possible non linear relationship among residual, so everyone of them are not good enough. It may also occur due to small sample. So, the only thing we can compare is which model has highest R value. in part a) have the highest R square value so it may be slightly better in explaining the relationship of variables. Which at least give us the highest prediction power and an good estimator for estimate total effect, but if the estimate is demand elasticity, due to Simultaneous equations bias problem, non of these alone are good estimator.

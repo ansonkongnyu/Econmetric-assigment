@@ -1,0 +1,48 @@
+---
+title: "Untitled"
+author: "Yui Kan Kong"
+date: "2023-02-18"
+output: html_document
+---
+
+
+```{r cars}
+
+thetaval<-seq(0,1,length=100)
+n1<-1
+n2<-10
+n3<-500
+a<-20
+b<-80
+x<-1
+prior1<-dbeta(thetaval,a+x,b+n1-x)
+prior2<-dbeta(thetaval,a+x,b+n2-x)
+prior3<-dbeta(thetaval,a+x,b+n3-x)
+plot(thetaval,prior1,type = "l", col = 4,ylab="",axes=FALSE,pch=1)
+par(new=TRUE)
+plot(thetaval,prior2,type = "l", col = 2,ylab="",axes=FALSE,pch=2)
+par(new=TRUE)
+plot(thetaval,prior3,type = "l", col = 5,ylab="density",frame.plot=TRUE,yaxt="n",pch=3,main="Three Priors")
+legend("topleft",c("n=1","n=10","n=500"),col=c(4, 2,5),,pch=1:3)
+
+```
+
+
+
+```{r pressure}
+thetaval<-seq(0,1,length=100)
+n<-10
+x<-1
+
+a<-20
+b<-80
+prior1<-dbeta(thetaval,a+x,b+n-x)
+prior2<-dbeta(thetaval,x,n-x)
+
+plot(thetaval,prior1,type = "l", col = 4,ylab="",axes=FALSE,pch=1)
+par(new=TRUE)
+plot(thetaval,prior3,type = "l", col = 5,ylab="density",frame.plot=TRUE,yaxt="n",pch=3,main="Two Priors")
+legend("topleft",c("Normal Prior","Jefferies(uniform)"),col=c(4,5),pch=1:3)
+```
+
+

@@ -1,0 +1,124 @@
+---
+title: "HW1"
+author: "Yui Kan Kong"
+date: "2022-09-24"
+output:
+  html_document: default
+  pdf_document: default
+editor_options:
+  markdown:
+    wrap: 72
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Before anything else
+
+Download the R package AER. This package contains a number of data sets.
+Upload the data set "USInvest" into a data frame as a time series. You
+will find the data set listed under Greene (2003).
+
+```{r cars}
+
+if(!require(dplyr)){install.packages('dplyr')}
+if(!require(AER)){install.packages('AER')}
+if(!require(gridExtra)){install.packages('gridExtra')}
+data(USInvest)                                   # Load dataset
+data=USInvest                        # Assign to a variable
+data
+print("Check is it time series as requested in the question")
+is.ts(data)
+print("To make life easies, trandorm to dataframe")
+mydata.df <- data.frame(year=time(data),as.matrix(data))
+mydata.df
+
+```
+
+a)  Add real GNP, real invest, and inflation to the data frame.
+    Descibtion from orginal document An annual multiple time series from
+    1968 to 1982 with 4 variables.
+
+gnp Nominal gross national product, invest Nominal investment, price
+Consumer price index, interest Interest rate (average yearly discount
+rate at the New York Federal Reserve Bank). From internet RGNP =
+(GNP/CPI) x 100. Real investment=(investment/CPI)x100
+inflation=$(CPI_{t} + CPI_{t-1})/CPI_{t-1} \times 100$
+
+```{r a}
+mydata.df$rgnp=mydata.df$gnp/mydata.df$price*100
+mydata.df$real.investment=mydata.df$invest/mydata.df$price*100
+mydata.df$price_shifted <- c(NA, head(mydata.df$price, -1))
+mydata.df$inflation=(mydata.df$price-mydata.df$price_shifted)/mydata.df$price_shifted  
+mydata.df
+```
+
+b)  Calculate the mean and standard deviation for each of the series.
+
+```{r}
+AllTheMeans <- sapply(mydata.df,mean)
+print("All mean other than inflation")
+AllTheMeans 
+print("inflation mean")
+mean(mydata.df$inflation, na.rm=TRUE)
+print("all other standard deviation")
+AllThesd <- sapply(mydata.df,sd)
+AllThesd
+print("Inflation sd")
+sd(mydata.df$inflation, na.rm=TRUE)
+
+```
+
+c)  Include growth rates for real GNP and real investment in the data
+    frame.
+
+```{r}
+library(dplyr)
+mydata.df = mydata.df %>%
+  # first sort by year
+  arrange(year) %>%
+  mutate(Diff_year = year - lag(year),
+         Diff_rgnp = rgnp - lag(rgnp),
+         Diff_real.investment = real.investment - lag(real.investment),
+         Growth_in_rgnp = (Diff_rgnp / Diff_year)/rgnp * 100,
+         Growth_in_real.investment = (Diff_real.investment / Diff_year)/real.investment * 100) 
+
+mydata.df
+```
+
+d)  Plot real GNP, real invest, and inflation as lines on separate
+    charts on a single page. Be sure to put time on the horizontal axis.
+    Include a legends and a title.
+
+```{r}
+
+library(ggplot2)
+
+ggplot(data=mydata.df, aes(x=year,y=rgnp))+geom_line(aes(color = "Real GNP"))+ theme(legend.position="top")+ ggtitle("Real GNP")
+```
+
+```{r}
+ggplot(data=mydata.df, aes(x=year,y=real.investment))+geom_line(aes(color = "Real Investment"))+ theme(legend.position="top")+ ggtitle("Real investment")
+```
+
+```{r}
+ggplot(data=mydata.df, aes(x=year,y=inflation))+geom_line(aes(color = "Inflation"))+ theme(legend.position="top")+ ggtitle("Inflation")
+
+```
+
+e)  Plot the growth rates of real GNP and real investment on separate
+    charts and include a horizontal line on each chart representing the
+    mean rate of growth for the series.
+
+The black line is the mean
+
+```{r}
+ggplot(data=mydata.df, aes(x=year,y=Growth_in_rgnp))+geom_line(aes(color = "Growth_in_rgnp"))+ theme(legend.position="top")+ ggtitle("Growth_in_rgnp")+geom_hline(yintercept=mean(mydata.df$Growth_in_rgnp, na.rm=TRUE))
+
+```
+
+```{r}
+ggplot(data=mydata.df, aes(x=year,y=Growth_in_real.investment))+geom_line(aes(color = "Growth_in_real.investment"))+ ggtitle("Growth_in_real.investment")+geom_hline(yintercept=mean(mydata.df$Growth_in_real.investment, na.rm=TRUE),show.legend = "mean")+ theme(legend.position="top")
+
+```
